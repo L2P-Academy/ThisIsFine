@@ -1,50 +1,74 @@
 package model;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-
 // author Whatchamaycall
 
 public class ItemRepository {
 
 	// attributes
-	private ArrayList<ItemModel> items;
+	private ItemModel fireExtinguisher, keyboard, keyCard;
+	private ItemModel coffee, harrysCape, usbDrive;
 
 	// constructor
-	public ItemRepository(ArrayList<ItemModel> items) {
+
+	public ItemRepository(ItemModel fireExtinguisher, ItemModel keyboard, ItemModel keyCard, ItemModel coffee,
+			ItemModel harrysCape, ItemModel usbDrive) {
 		super();
-		this.items = items;
+		this.fireExtinguisher = fireExtinguisher;
+		this.keyboard = keyboard;
+		this.keyCard = keyCard;
+		this.coffee = coffee;
+		this.harrysCape = harrysCape;
+		this.usbDrive = usbDrive;
 	}
 
 	// methods
-
-	// add item to list
-	public void addItem(ItemModel item) {
-		items.add(item);
-
+	// getter & setter
+	public ItemModel getFireExtinguisher() {
+		return fireExtinguisher;
 	}
 
-	// return all items
-	public ArrayList<ItemModel> getItems() {
-		return items;
-
+	public void setFireExtinguisher(ItemModel fireExtinguisher) {
+		this.fireExtinguisher = fireExtinguisher;
 	}
 
-	// remove an item from the list
-	public void removeItem(ItemModel item) {
-		items.remove(item);
-
+	public ItemModel getKeyboard() {
+		return keyboard;
 	}
-	
-	// find an item by its name
-	public ItemModel findItemByName(String name) {
-		for (ItemModel item : items) {
-			if (item.getName().equals(name)) {
-				return item;
-			}
-		}
-		
-		return null;
+
+	public void setKeyboard(ItemModel keyboard) {
+		this.keyboard = keyboard;
+	}
+
+	public ItemModel getKeyCard() {
+		return keyCard;
+	}
+
+	public void setKeyCard(ItemModel keyCard) {
+		this.keyCard = keyCard;
+	}
+
+	public ItemModel getCoffee() {
+		return coffee;
+	}
+
+	public void setCoffee(ItemModel coffee) {
+		this.coffee = coffee;
+	}
+
+	public ItemModel getHarrysCape() {
+		return harrysCape;
+	}
+
+	public void setHarrysCape(ItemModel harrysCape) {
+		this.harrysCape = harrysCape;
+	}
+
+	public ItemModel getUsbDrive() {
+		return usbDrive;
+	}
+
+	public void setUsbDrive(ItemModel usbDrive) {
+		this.usbDrive = usbDrive;
 	}
 
 }
