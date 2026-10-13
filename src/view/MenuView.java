@@ -55,6 +55,15 @@ public class MenuView extends JFrame {
 		backgroundPanel.add(buttonPanel, BorderLayout.SOUTH);
 
 		// actions
+		newGameBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new GameView();
+				dispose();
+			}
+		});
+		
 		exitBtn.addActionListener(new ActionListener() {
 
 			@Override
