@@ -1,5 +1,7 @@
 package model;
 
-public class TerminalModel {
+// author: ted88888888
 
+public class TerminalModel {
+//test
 }
