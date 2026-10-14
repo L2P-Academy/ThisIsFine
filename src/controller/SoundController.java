@@ -12,34 +12,49 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 //author:SenseiFarm
 
 public class SoundController {
+	private final String alarmUrl="alarm.wav";
+	private final String attentionUrl="attention.wav";
+	private final String extinguishedUrl="extinguished.wav";
+	private final String fireExtinguisherUrl="fireExtinguisher.wav";
+	private final String footStepsUrl="footSteps.wav";
+	private final String gameOverUrl="gameOver.wav";
+	private final String inGame_bgmUrl="inGame_bgm.wav";
+	private final String mouseClickUrl="mouseClick.wav";
+	private final String qteFailUrl="qteFail.wav";
+	private final String qteSuccees_1Url="qteSucceed_1.wav";
+	private final String talking_1Url="talking_1.wav";
+	private final String taskCompletedUrl="taskCompleted.wav";
+	private final String terminalLockOutUrl="terminalLockOut.wav";
+	private final String timerUrl="timer.wav";
+	private final String typingUrl="typing.wav";
 	
-	private final String musicFileUrl="";
-	private final String sfxFileUrl="";
-	private final String buttonFileUrl="";
+	
 	public Clip musicClip;
 	public Clip sfxClip;
 	public Clip buttonClip;
 	
 	public SoundController(){
-		musicClip=createClip(musicFileUrl);
-		sfxClip=createClip(sfxFileUrl);
-		buttonClip=createClip(buttonFileUrl);
+		musicClip=createClip(inGame_bgmUrl);
+		sfxClip=createClip(null);
+		buttonClip=createClip(mouseClickUrl);
+		
 	}
 	
 	public void playMusic(Clip clip) {
-		musicClip.start();
+		clip.loop(Clip.LOOP_CONTINUOUSLY);
+		clip.start();
 	}
 	
 	public void stopMusic(Clip clip) {
-		musicClip.stop();
+		clip.stop();
 	}
 	
 	public void playSfx(Clip clip) {
-		sfxClip.start();
+		clip.start();
 	}
 	
 	public void playButtonClip(Clip clip) {
-		buttonClip.start();
+		clip.start();
 	}
 	
 	public void close() {
