@@ -11,7 +11,9 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
 public class MenuView extends JFrame {
@@ -19,7 +21,9 @@ public class MenuView extends JFrame {
 	
 	private JPanel buttonPanel, backgroundPanel;
 	private JButton newGameBtn, loadGameBtn, settingsBtn, exitBtn;
+	private JLabel titlebl;
 	private String bgPath = "/img/ThisIsFine_bg.png";
+	private String titlePath = "/img/ThisIsFine_title.png";
 
 	// constructor
 	public MenuView() {
@@ -34,7 +38,15 @@ public class MenuView extends JFrame {
 		ImageIcon bgIcon = new ImageIcon(getClass().getResource(bgPath));
 		backgroundPanel = new BackgroundPanel(bgIcon.getImage());
 		backgroundPanel.setLayout(new BorderLayout());
+		
+		// game title
+		ImageIcon titleIcon = new ImageIcon(getClass().getResource(titlePath));
 
+		titlebl = new JLabel(titleIcon);
+		titlebl.setHorizontalAlignment(SwingConstants.CENTER);
+		titlebl.setVerticalAlignment(SwingConstants.CENTER);
+		titlebl.setOpaque(false);
+		
 		// components
 		newGameBtn = new JButton("Neues Spiel");
 		beautifyButton(newGameBtn);
@@ -52,7 +64,9 @@ public class MenuView extends JFrame {
 		buttonPanel.add(exitBtn);
 		buttonPanel.setOpaque(false);
 
+		backgroundPanel.add(titlebl,BorderLayout.NORTH);
 		backgroundPanel.add(buttonPanel, BorderLayout.SOUTH);
+		
 
 		// actions
 		newGameBtn.addActionListener(new ActionListener() {
