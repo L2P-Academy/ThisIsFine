@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -18,7 +19,7 @@ import javax.swing.border.Border;
 
 public class MenuView extends JFrame {
 	// attributes
-	
+
 	private JPanel buttonPanel, backgroundPanel;
 	private JButton newGameBtn, loadGameBtn, settingsBtn, exitBtn;
 	private JLabel titlebl;
@@ -38,15 +39,16 @@ public class MenuView extends JFrame {
 		ImageIcon bgIcon = new ImageIcon(getClass().getResource(bgPath));
 		backgroundPanel = new BackgroundPanel(bgIcon.getImage());
 		backgroundPanel.setLayout(new BorderLayout());
-		
+
 		// game title
 		ImageIcon titleIcon = new ImageIcon(getClass().getResource(titlePath));
 
-		titlebl = new JLabel(titleIcon);
+		Image titleImage = titleIcon.getImage();
+		Image newImage = titleImage.getScaledInstance(1200, 300, Image.SCALE_SMOOTH);
+
+		titlebl = new JLabel(new ImageIcon(newImage));
 		titlebl.setHorizontalAlignment(SwingConstants.CENTER);
-		titlebl.setVerticalAlignment(SwingConstants.CENTER);
-		titlebl.setOpaque(false);
-		
+
 		// components
 		newGameBtn = new JButton("Neues Spiel");
 		beautifyButton(newGameBtn);
@@ -64,9 +66,8 @@ public class MenuView extends JFrame {
 		buttonPanel.add(exitBtn);
 		buttonPanel.setOpaque(false);
 
-		backgroundPanel.add(titlebl,BorderLayout.NORTH);
+		backgroundPanel.add(titlebl, BorderLayout.NORTH);
 		backgroundPanel.add(buttonPanel, BorderLayout.SOUTH);
-		
 
 		// actions
 		newGameBtn.addActionListener(new ActionListener() {
@@ -77,7 +78,7 @@ public class MenuView extends JFrame {
 				dispose();
 			}
 		});
-		
+
 		exitBtn.addActionListener(new ActionListener() {
 
 			@Override
