@@ -16,6 +16,7 @@ import javax.swing.border.Border;
 
 public class MenuView extends JFrame {
 	// attributes
+	
 	private JPanel buttonPanel, backgroundPanel;
 	private JButton newGameBtn, loadGameBtn, settingsBtn, exitBtn;
 	private String bgPath = "/img/ThisIsFine_bg.png";
@@ -54,6 +55,15 @@ public class MenuView extends JFrame {
 		backgroundPanel.add(buttonPanel, BorderLayout.SOUTH);
 
 		// actions
+		newGameBtn.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new GameView();
+				dispose();
+			}
+		});
+		
 		exitBtn.addActionListener(new ActionListener() {
 
 			@Override
