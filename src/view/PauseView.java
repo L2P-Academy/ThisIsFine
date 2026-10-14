@@ -24,7 +24,7 @@ import javax.swing.JLabel;
 public class PauseView extends JFrame{
 	
 	//Attribute
-	private JButton resumeBtn, restartBtn, mainMenuBtn;
+	private JButton resumeBtn, restartBtn, saveBtn, exitBtn;
 	private JPanel buttonPanel, backgroundPanel;
 	private JLabel pauseLabel;
 	private String bgPath = "/img/ThisIsFine_bg.png";
@@ -39,7 +39,7 @@ public class PauseView extends JFrame{
 		setAlwaysOnTop(true);
 		
 		//container
-		buttonPanel = new JPanel(new GridLayout(3, 1, 0, 25));
+		buttonPanel = new JPanel(new GridLayout(4, 1, 0, 25));
 		JPanel centerWrapper = new JPanel(new java.awt.GridBagLayout());
 		centerWrapper.setOpaque(false);
 		centerWrapper.add(buttonPanel);
@@ -52,8 +52,10 @@ public class PauseView extends JFrame{
 		beautifyButton(resumeBtn);
 		restartBtn = new JButton("Restart");
 		beautifyButton(restartBtn);
-		mainMenuBtn = new JButton("Hauptmenü");
-		beautifyButton(mainMenuBtn);
+		saveBtn = new JButton("Speichern");
+		beautifyButton(saveBtn);
+		exitBtn = new JButton("Beenden");
+		beautifyButton(exitBtn);
 		
 		pauseLabel = new JLabel("SPIEL PAUSIERT", SwingConstants.CENTER);
 		pauseLabel.setFont(new Font("Times New Roman", Font.BOLD, 90));
@@ -64,7 +66,8 @@ public class PauseView extends JFrame{
 		//layout
 		buttonPanel.add(resumeBtn);
 		buttonPanel.add(restartBtn);
-		buttonPanel.add(mainMenuBtn);
+		buttonPanel.add(saveBtn);
+		buttonPanel.add(exitBtn);
 		buttonPanel.setOpaque(false);
 		
 		
@@ -94,11 +97,20 @@ public class PauseView extends JFrame{
 		});
 		*/
 		
-		mainMenuBtn.addActionListener(new ActionListener() {
+		/*saveBtn.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new MenuView();
+				// TODO Auto-generated method stub
+				
+			}
+		});;
+		*/
+		
+		exitBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
 				dispose();
 				
 			}
