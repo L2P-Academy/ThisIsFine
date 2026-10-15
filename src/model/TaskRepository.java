@@ -23,5 +23,43 @@ public static List<TaskModel> getAllTasks() {
 }
 
 
+
+public static TaskModel getTaskById(int id) {
+    for (TaskModel task : TASKS) {
+        if (task.getId() == id) {
+            return task;
+        }
+    }
+    return null;
+}
+
+
+public static boolean isTaskActive(int id) {
+    TaskModel task = getTaskById(id);
+    return task != null && task.isActive();
+}
+
+
+public static void setTaskActive(int id, boolean active) {
+    TaskModel task = getTaskById(id);
+    if (task != null) {
+        task.setActive(active);
+    }
+}
+
+
+public static boolean isTaskCompleted(int id) {
+    TaskModel task = getTaskById(id);
+    return task != null && task.isCompleted();
+}
+
+
+public static void setTaskCompleted(int id, boolean completed) {
+    TaskModel task = getTaskById(id);
+    if (task != null) {
+        task.setCompleted(completed);
+    }
+}
+
 	
 }
