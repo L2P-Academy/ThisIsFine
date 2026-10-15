@@ -1,5 +1,7 @@
 package view;
 
+import controller.SoundController;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
@@ -25,9 +27,13 @@ public class MenuView extends JFrame {
 	private JLabel titlebl;
 	private String bgPath = "/img/ThisIsFine_bg.png";
 	private String titlePath = "/img/ThisIsFine_title.png";
+	private SoundController soundController;
 
 	// constructor
-	public MenuView() {
+	public MenuView(SoundController soundController) {
+		// parameters
+		this.soundController=soundController;
+		
 		// frame attributes
 		setTitle("This is Fine! - Hauptmenü");
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -74,6 +80,8 @@ public class MenuView extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				soundController.stopMusic(soundController.titleClip);
+				soundController.playButtonClip(soundController.buttonClip);
 				new GameView();
 				dispose();
 			}
@@ -83,6 +91,9 @@ public class MenuView extends JFrame {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				soundController.stopMusic(soundController.titleClip);
+				soundController.playButtonClip(soundController.buttonClip);
+				soundController.close();
 				dispose();
 			}
 		});
@@ -90,6 +101,9 @@ public class MenuView extends JFrame {
 		getContentPane().add(backgroundPanel);
 		setLocationRelativeTo(null);
 		setVisible(true);
+		
+		//music
+		soundController.playMusic(soundController.titleClip);
 	}
 
 	// methods

@@ -14,34 +14,43 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class SoundController {
 	private final String urlPrefix="/sfx/";//"Haeng halt n /sfx/ an, wie in der MenuView. Layer 8 Fehler" - Christph Bauch, 15.10.2026 
-	private final String alarmUrl="alarm.wav";
-	private final String attentionUrl="attention.wav";
-	private final String extinguishedUrl="extinguished.wav";
-	private final String fireExtinguisherUrl="fireExtinguisher.wav";
-	private final String footStepsUrl="footSteps.wav";
-	private final String gameOverUrl="gameOver.wav";
-	private final String inGame_bgmUrl="inGame_bgm.wav";
-	private final String mouseClickUrl="mouseClick.wav";
-	private final String qteFailUrl="qteFail.wav";
-	private final String qteSuccees_1Url="qteSucceed_1.wav";
-	private final String talking_1Url="talking_1.wav";
-	private final String taskCompletedUrl="taskCompleted.wav";
-	private final String terminalLockOutUrl="terminalLockOut.wav";
-	private final String timerUrl="timer.wav";
-	private final String typingUrl="typing.wav";
+	private final String urlEnd=".wav";
+	private final String alarmUrl="alarm";
+	private final String attentionUrl="attention";
+	private final String extinguishedUrl="extinguished";
+	private final String fireExtinguisherUrl="fireExtinguisher";
+	private final String footStepsUrl="footSteps";
+	private final String gameOverUrl="gameOver";
+	private final String inGame_bgmUrl="inGame_bgm";
+	private final String mouseClickUrl="mouseClick";
+	private final String qteFailUrl="qteFail";
+	private final String qteSuccees_Url="qteSucceed_";
+	private final String talking_Url="talking_";
+	private final String taskCompletedUrl="taskCompleted";
+	private final String terminalLockOutUrl="terminalLockOut";
+	private final String timerUrl="timer";
+	private final String typingUrl="typing";
 	
-	public Clip musicClip;
+	public Clip titleClip;
+	public Clip bgmClip;
 	public Clip sfxClip;
+	public Clip successClip;
+	public Clip failClip;
+	public Clip typingClip;
 	public Clip buttonClip;
 	
 	public SoundController(){
-		musicClip=createClip(inGame_bgmUrl);
+		titleClip=createClip(inGame_bgmUrl);
+		bgmClip=createClip(inGame_bgmUrl);
 		//sfxClip=createClip(null);
+		failClip=createClip(qteFailUrl);
+		typingClip=createClip(typingUrl);
 		buttonClip=createClip(mouseClickUrl);
 	}
 	
 	public void playMusic(Clip clip) {
 		clip.loop(Clip.LOOP_CONTINUOUSLY);
+		clip.setFramePosition(0);
 		clip.start();
 	}
 	
@@ -50,16 +59,31 @@ public class SoundController {
 	}
 	
 	public void playSfx(Clip clip) {
+		clip.setFramePosition(0);
 		clip.start();
 	}
 	
+	public void stopSfx(Clip clip) {
+		clip.stop();
+	}
+	
+	public void playRandomSuccessClip() {
+		int i=(int)Math.random()*5+1;
+		successClip=createClip(qteSuccees_Url+i);
+		successClip.start();
+	}
+	
 	public void playButtonClip(Clip clip) {
+		clip.setFramePosition(0);
 		clip.start();
 	}
 	
 	public void close() {
-		if(musicClip.isOpen()) {
-			musicClip.close();
+		if(titleClip.isOpen()) {
+			titleClip.close();
+		}
+		if(bgmClip.isOpen()) {
+			bgmClip.close();
 		}
 		//if(sfxClip.isOpen()) {
 		//	sfxClip.close();
@@ -71,7 +95,7 @@ public class SoundController {
 	
 	private Clip createClip(String fileUrl) {
 		try{
-			InputStream fileStream=new BufferedInputStream(getClass().getResourceAsStream(urlPrefix+fileUrl));
+			InputStream fileStream=new BufferedInputStream(getClass().getResourceAsStream(urlPrefix+fileUrl+urlEnd));
 			AudioInputStream aStream=AudioSystem.getAudioInputStream(fileStream);
 			Clip c =AudioSystem.getClip();
 			c.open(aStream);

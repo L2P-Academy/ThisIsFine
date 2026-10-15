@@ -9,12 +9,14 @@ public class GameStateModel {
 	private String playTime;
 
 	//	constructor
-	public GameStateModel(int worldSizeX, int worldSizeY, int playerX, int playerY) {
+	public GameStateModel(int worldSizeX, int worldSizeY, int playerX, int playerY, String playTime) {
+		
 		super();
 		this.worldSizeX = worldSizeX;
 		this.worldSizeY = worldSizeY;
 		this.playerX = playerX;
 		this.playerY = playerY;
+		this.playTime = playTime;
 	}
 
 	//	getter and setter
@@ -48,6 +50,14 @@ public class GameStateModel {
 
 	public void setPlayerY(int playerY) {
 		this.playerY = playerY;
+	}
+
+	public String getPlayTime() {
+		return playTime;
+	}
+
+	public void setPlayTime(String playTime) {
+		this.playTime = playTime;
 	}
 	
 	
