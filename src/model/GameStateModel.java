@@ -10,6 +10,7 @@ public class GameStateModel {
 
 	//	constructor
 	public GameStateModel(int worldSizeX, int worldSizeY, int playerX, int playerY, String playTime) {
+		
 		super();
 		this.worldSizeX = worldSizeX;
 		this.worldSizeY = worldSizeY;
