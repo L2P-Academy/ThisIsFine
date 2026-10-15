@@ -6,6 +6,8 @@ import javax.swing.*;
 import javax.swing.border.Border;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class TerminalView extends JFrame {
     private JFrame TerminalView;
@@ -36,6 +38,13 @@ public class TerminalView extends JFrame {
         powerButton = new JButton("Power");
         
         //actions, layout
+		powerButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				dispose();
+			}
+		});
+		
         southPanel.add(southLabel, BorderLayout.WEST);
         southPanel.add(powerButton, BorderLayout.EAST);
         beautifyButton(powerButton);
