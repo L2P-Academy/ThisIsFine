@@ -1,6 +1,6 @@
 package controller;
 import model.FireModel;
-import view.GameView;
+import view.GameView_old;
 
 //author: HKD-DP-KW
 
@@ -8,7 +8,7 @@ import view.GameView;
 public class GameController {
 
 	//attributes
-	private GameView gameView;
+	private GameView_old gameView;
 	private FireModel fire;
 	private SoundController soundController;
 	
@@ -35,7 +35,7 @@ public class GameController {
 		terminalCol = 10; 
 		taskStep = 0;
 		
-		gameView = new GameView();
+		gameView = new GameView_old();
 	}
 	public void playerAction(int row, int col) {
 		if (row == terminalRow && col == terminalCol) {

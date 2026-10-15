@@ -1,348 +1,440 @@
 package view;
 
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
-import java.awt.Image;
+import java.awt.Polygon;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
+import java.awt.geom.RoundRectangle2D;
 
-import javax.swing.Timer;
-
-import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
-import controller.SoundController;
-import model.GameStateModel;
 import model.PlayerModel;
 
-//author: L2P-Academy
-
 public class GameView extends JFrame {
-	// final attributes for map design
-	private static final int ROWS = 16;
-	private static final int COLS = 32;
-	private final Map<String, ImageIcon> iconCache = new HashMap<>();
 
-	// standard attributes
-	private int playerRow = 8;
-	private int playerCol = 16;
-	private int tileSize;
-	private int selectedToolIndex = 0; // TODO?
+    private static final int ROWS = 16;
+    private static final int COLS = 32;
+    private static final int WORLD_WIDTH = 1000;
+    private static final int WORLD_HEIGHT = 600;
 
-	// overlay for animation
-	private JLayeredPane worldLayeredPane;
+    private static final Color FLOOR = new Color(35, 67, 40);
+    private static final Color FLOOR_GRID = new Color(55, 85, 58);
+    private static final Color PANEL = new Color(18, 29, 26);
+    private static final Color OUTLINE = new Color(93, 151, 117);
+    private static final Color CYAN = new Color(100, 228, 208);
+    private static final Color WHITE = new Color(236, 245, 238);
 
-	// basic player directions for game start
-	private enum PlayerDirections {
-		LEFT, RIGHT, UP, DOWN
-	}
+    private static final Rectangle LEFT_SERVER = new Rectangle(250, 130, 115, 270);
+    private static final Rectangle RIGHT_SERVER = new Rectangle(655, 130, 115, 340);
+    private static final Rectangle TERMINAL = new Rectangle(427, 145, 135, 78);
 
-	private PlayerDirections currentDirection = PlayerDirections.DOWN;
+    private enum PlayerDirections {
+        LEFT, RIGHT, UP, DOWN
+    }
 
-	private GameStateModel gameState;
-	private PlayerModel player;
-	private SoundController soundController;
+    private int playerRow = 8;
+    private int playerCol = 16;
+    private PlayerDirections currentDirection = PlayerDirections.DOWN;
 
-	// UI attributes
-	private JPanel tilePnl, taskPnl, topPnl;
-	private JLabel timeLbl, playerLbl;
-	private JProgressBar detectionBar;
-	private Timer gameTimer;
-	private int currentVolume = 100;
-	private int elapsedSeconds = 0;
-	private JLabel[][] worldLabels = new JLabel[ROWS][COLS];
+    private final PlayerModel player;
+    private final GameField gameField;
+    private final JLabel timeLbl;
+    private final JLabel taskLbl;
+    private final JProgressBar detectionBar;
+    private final JProgressBar leftServerHeat;
+    private final JProgressBar rightServerHeat;
+    private final Timer gameTimer;
+    private int elapsedSeconds;
 
-	// new-game Constructor (standard) | TODO: add SoundController to parameter
-	public GameView() {
-		//this.soundController = soundController;
-		setExtendedState(JFrame.MAXIMIZED_BOTH);
-		setLayout(new BorderLayout());
-		setUndecorated(true);
+    public GameView() {
+        setTitle("ThisIsFine - Game");
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setUndecorated(true);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
+        setLayout(new BorderLayout());
+        getContentPane().setBackground(PANEL);
 
-		// top Panel for player detection and time
-		topPnl = new JPanel(new BorderLayout());
-		topPnl.setPreferredSize(new Dimension(0, 130));
-		topPnl.setBackground(Color.DARK_GRAY);
+        player = new PlayerModel(playerRow, playerCol, 1, "Test Player");
 
-		// screen size / resolution
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		tileSize = calculateTileSize(screenSize.width, screenSize.height);
-		
-		// task panel & detection bar
-		taskPnl = new JPanel();		
-		detectionBar = new JProgressBar(0, 100);
-		
-		// timer
-		timeLbl = new JLabel("Zeit: 00:00");
-		timeLbl.setForeground(Color.WHITE);
-		timeLbl.setHorizontalAlignment(SwingConstants.RIGHT);
-		timeLbl.setAlignmentX(RIGHT_ALIGNMENT);
-		startGameTimer();
+        JPanel topPnl = new JPanel(new BorderLayout(16, 0));
+        topPnl.setBackground(PANEL);
+        topPnl.setPreferredSize(new Dimension(0, 94));
+        topPnl.setBorder(BorderFactory.createEmptyBorder(15, 20, 14, 20));
 
-		topPnl.add(taskPnl, BorderLayout.WEST);
-		topPnl.add(detectionBar, BorderLayout.CENTER);
-		topPnl.add(timeLbl, BorderLayout.EAST);
+        JPanel taskPnl = new JPanel(new GridLayout(2, 1, 0, 2));
+        taskPnl.setOpaque(false);
+        taskPnl.setPreferredSize(new Dimension(245, 0));
 
-		// game field calculation & creation
-		Dimension worldDimension = new Dimension(COLS * tileSize, ROWS * tileSize);
+        JLabel taskHeading = new JLabel("AUFGABE");
+        taskHeading.setForeground(CYAN);
+        taskHeading.setFont(new Font(Font.MONOSPACED, Font.BOLD, 19));
 
-		tilePnl = new JPanel(new GridLayout(ROWS, COLS));
-		tilePnl.setOpaque(false);
-		tilePnl.setBounds(0, 0, worldDimension.width, worldDimension.height);
-		applyPreferredWorldSize();
+        taskLbl = new JLabel("Noch keine Aufgabe");
+        taskLbl.setForeground(WHITE);
+        taskLbl.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        taskPnl.add(taskHeading);
+        taskPnl.add(taskLbl);
 
-		worldLayeredPane = new JLayeredPane();
-		worldLayeredPane.setPreferredSize(worldDimension);
-		
-		// create world tiles
-		for (int row = 0; row < ROWS; row++) {
-		    for (int col = 0; col < COLS; col++) {
+        detectionBar = new JProgressBar(0, 100);
+        detectionBar.setValue(0);
+        detectionBar.setString("DETECTION");
+        detectionBar.setStringPainted(true);
+        detectionBar.setForeground(new Color(236, 156, 73));
+        detectionBar.setBackground(new Color(42, 55, 45));
+        detectionBar.setFont(new Font(Font.MONOSPACED, Font.BOLD, 20));
+        detectionBar.setBorder(BorderFactory.createLineBorder(OUTLINE, 2));
 
-		        JLabel tile = new JLabel();
+        timeLbl = new JLabel("00:00:00", SwingConstants.RIGHT);
+        timeLbl.setForeground(WHITE);
+        timeLbl.setFont(new Font(Font.MONOSPACED, Font.BOLD, 31));
+        timeLbl.setPreferredSize(new Dimension(185, 0));
 
-		        tile.setOpaque(true);
-		        tile.setBackground(new Color(45, 90, 45));
-		        tile.setLayout(new BorderLayout());
+        topPnl.add(taskPnl, BorderLayout.WEST);
+        topPnl.add(detectionBar, BorderLayout.CENTER);
+        topPnl.add(timeLbl, BorderLayout.EAST);
 
-		        worldLabels[row][col] = tile;
-		        tilePnl.add(tile);
-		    }
-		}
+        leftServerHeat = createHeatBar(25);
+        rightServerHeat = createHeatBar(63);
 
-		// add tile panel to layered pane
-		worldLayeredPane.add(tilePnl, JLayeredPane.DEFAULT_LAYER);
+        gameField = new GameField();
+        gameField.add(leftServerHeat);
+        gameField.add(rightServerHeat);
 
-		// add world to game window
-		getContentPane().add(worldLayeredPane, BorderLayout.CENTER);
+        add(topPnl, BorderLayout.NORTH);
+        add(gameField, BorderLayout.CENTER);
+        installKeys();
 
-		// standard player creation
-		player = new PlayerModel(playerRow, playerCol, 1, "Test Player");
-		playerLbl = new JLabel();
-		playerLbl.setText("P1");
-		playerLbl.setForeground(Color.WHITE);
-		playerLbl.setFont(new Font("Arial", Font.BOLD, 24));
-		
-		playerLbl.setPreferredSize(new Dimension(tileSize, tileSize));
-		playerLbl.setOpaque(false);
-		playerLbl.setHorizontalAlignment(SwingConstants.CENTER);
-		playerLbl.setVerticalAlignment(SwingConstants.CENTER);
+        gameTimer = new Timer(1000, e -> {
+            elapsedSeconds++;
+            int hours = elapsedSeconds / 3600;
+            int minutes = elapsedSeconds / 60 % 60;
+            int seconds = elapsedSeconds % 60;
+            timeLbl.setText(String.format("%02d:%02d:%02d", hours, minutes, seconds));
+        });
+        gameTimer.start();
 
-		// load player gif by URL TODO:
-//		ImageIcon playerIcon = getScaledIcon("TODO!!!!", (int) (tileSize * 0.7), true);
-//		playerLbl.setIcon(playerIcon);
+        setLocationRelativeTo(null);
+        setVisible(true);
+    }
 
-		// add player to world map and refresh
-		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
-		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
-		worldLabels[playerRow][playerCol].revalidate();
-		worldLabels[playerRow][playerCol].repaint();
+    private JProgressBar createHeatBar(int heat) {
+        JProgressBar bar = new JProgressBar(JProgressBar.VERTICAL, 0, 100);
+        bar.setValue(heat);
+        bar.setStringPainted(false);
+        bar.setBackground(new Color(13, 25, 23));
+        bar.setForeground(heatColor(heat));
+        bar.setBorder(BorderFactory.createLineBorder(OUTLINE, 2));
+        return bar;
+    }
 
-		// movement keys (WASD)
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_W, 0),
-				"moveUp");
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0),
-				"moveLeft");
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0),
-				"moveDown");
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0),
-				"moveRight");
+    private static Color heatColor(int heat) {
+        if (heat >= 75) {
+            return new Color(231, 76, 59);
+        }
+        if (heat >= 45) {
+            return new Color(245, 161, 64);
+        }
+        return new Color(93, 212, 113);
+    }
 
-		// pause menu key ("ESC")
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ESCAPE"),
-				"showPauseMenu");
+    public void setServerHeat(int serverNumber, int heat) {
+        if (serverNumber != 1 && serverNumber != 2) {
+            throw new IllegalArgumentException("serverNumber muss 1 oder 2 sein");
+        }
+        int value = Math.max(0, Math.min(100, heat));
+        SwingUtilities.invokeLater(() -> {
+            JProgressBar bar = serverNumber == 1 ? leftServerHeat : rightServerHeat;
+            bar.setValue(value);
+            bar.setForeground(heatColor(value));
+        });
+    }
 
-		// action key ("E")
-		getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("E"), "playerAction");
+    public void setDetection(int detection) {
+        int value = Math.max(0, Math.min(100, detection));
+        SwingUtilities.invokeLater(() -> {
+            detectionBar.setValue(value);
+            detectionBar.setString("DETECTION  " + value + "%");
+        });
+    }
 
-		// action maps
-		// pause action
-		getRootPane().getActionMap().put("showPauseMenu", new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				showPauseMenu();
-			}
-		});
+    public void setTaskText(String task) {
+        SwingUtilities.invokeLater(() -> taskLbl.setText(task == null ? "" : task));
+    }
 
-		// player movement
-		getRootPane().getActionMap().put("moveLeft", new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				turnOrMove(PlayerDirections.LEFT);
-			}
-		});
+    private void installKeys() {
+        registerMove(KeyEvent.VK_W, "moveUp", PlayerDirections.UP);
+        registerMove(KeyEvent.VK_A, "moveLeft", PlayerDirections.LEFT);
+        registerMove(KeyEvent.VK_S, "moveDown", PlayerDirections.DOWN);
+        registerMove(KeyEvent.VK_D, "moveRight", PlayerDirections.RIGHT);
 
-		getRootPane().getActionMap().put("moveRight", new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				turnOrMove(PlayerDirections.RIGHT);
-			}
-		});
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "showPauseMenu");
+        getRootPane().getActionMap().put("showPauseMenu", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showPauseMenu();
+            }
+        });
+    }
 
-		getRootPane().getActionMap().put("moveUp", new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				turnOrMove(PlayerDirections.UP);
-			}
-		});
+    private void registerMove(int key, String actionName, PlayerDirections direction) {
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(KeyStroke.getKeyStroke(key, 0), actionName);
+        getRootPane().getActionMap().put(actionName, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                turnOrMove(direction);
+            }
+        });
+    }
 
-		getRootPane().getActionMap().put("moveDown", new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				turnOrMove(PlayerDirections.DOWN);
-			}
-		});
+    private void turnOrMove(PlayerDirections wantedDirection) {
+        currentDirection = wantedDirection;
+        switch (wantedDirection) {
+            case LEFT:
+                movePlayer(0, -1);
+                break;
+            case RIGHT:
+                movePlayer(0, 1);
+                break;
+            case UP:
+                movePlayer(-1, 0);
+                break;
+            case DOWN:
+                movePlayer(1, 0);
+                break;
+        }
+        gameField.repaint();
+    }
 
-		// TODO: player action with E?
+    private void movePlayer(int dRow, int dCol) {
+        int newRow = playerRow + dRow;
+        int newCol = playerCol + dCol;
+        if (newRow < 0 || newRow >= ROWS || newCol < 0 || newCol >= COLS) {
+            return;
+        }
 
-		getContentPane().setBackground(new Color(0, 50, 0));
-		getContentPane().add(topPnl, BorderLayout.NORTH);
-		setLocationRelativeTo(null);
-		setVisible(true);
+        int x = Math.round((newCol + 0.5f) * WORLD_WIDTH / COLS);
+        int y = Math.round((newRow + 0.5f) * WORLD_HEIGHT / ROWS);
+        Rectangle footprint = new Rectangle(x - 10, y - 14, 20, 28);
+        if (footprint.intersects(LEFT_SERVER)
+                || footprint.intersects(RIGHT_SERVER)
+                || footprint.intersects(TERMINAL)) {
+            return;
+        }
 
-	}
+        playerRow = newRow;
+        playerCol = newCol;
+        player.setPositionX(playerCol);
+        player.setPositionY(playerRow);
+        gameField.repaint();
+    }
 
-	protected void turnOrMove(PlayerDirections wantedDirection) {
-		switch (wantedDirection) {
-		case LEFT:
-			movePlayer(0, -1);
-			break;
-		case RIGHT:
-			movePlayer(0, 1);
-			break;
-		case UP:
-			movePlayer(-1, 0);
-			break;
-		case DOWN:
-			movePlayer(1, 0);
-			break;
-		}
-	}
+    protected void showPauseMenu() {
+        gameTimer.stop();
+        Object[] options = {"Fortsetzen", "Beenden"};
+        int result = JOptionPane.showOptionDialog(
+                this, "Spiel pausiert", "Pause", JOptionPane.DEFAULT_OPTION,
+                JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+        if (result == 1) {
+            dispose();
+        } else {
+            gameTimer.start();
+        }
+    }
 
-	private void movePlayer(int dRow, int dCol) {
-		int newRow = playerRow + dRow;
-		int newCol = playerCol + dCol;
+    @Override
+    public void dispose() {
+        if (gameTimer != null) {
+            gameTimer.stop();
+        }
+        super.dispose();
+    }
 
-		if (!isInside(newRow, newCol)) {
-			return;
-		}
+    private class GameField extends JPanel {
 
-		if (playerLbl != null && worldLabels[playerRow][playerCol] != null) {
-			worldLabels[playerRow][playerCol].remove(playerLbl);
-			worldLabels[playerRow][playerCol].revalidate();
-			worldLabels[playerRow][playerCol].repaint();
-		}
+        GameField() {
+            setLayout(null);
+            setBackground(FLOOR);
+            setPreferredSize(new Dimension(WORLD_WIDTH, WORLD_HEIGHT));
+        }
 
-		playerRow = newRow;
-		playerCol = newCol;
-		player.setPositionX(playerCol);
-		player.setPositionY(playerRow);
+        private int px(double x) {
+            return (int) Math.round(x * getWidth() / WORLD_WIDTH);
+        }
 
-		worldLabels[playerRow][playerCol].setLayout(new BorderLayout());
-		worldLabels[playerRow][playerCol].add(playerLbl, BorderLayout.CENTER);
-		worldLabels[playerRow][playerCol].setComponentZOrder(playerLbl, 0);
-		worldLabels[playerRow][playerCol].revalidate();
-		worldLabels[playerRow][playerCol].repaint();
-	}
+        private int py(double y) {
+            return (int) Math.round(y * getHeight() / WORLD_HEIGHT);
+        }
 
-	// helper method for game borders
-	private boolean isInside(int row, int col) {
-		return row >= 0 && row < ROWS && col >= 0 && col < COLS;
-	}
+        @Override
+        public void doLayout() {
+            super.doLayout();
+            placeHeatBar(leftServerHeat, LEFT_SERVER);
+            placeHeatBar(rightServerHeat, RIGHT_SERVER);
+        }
 
-	protected void showPauseMenu() {
-		// TODO!
+        private void placeHeatBar(JProgressBar bar, Rectangle server) {
+            bar.setBounds(px(server.x + server.width / 2.0 - 13), py(server.y + 16),
+                    Math.max(12, px(26)), Math.max(24, py(server.height - 32)));
+        }
 
-	}
+        @Override
+        protected void paintComponent(Graphics graphics) {
+            super.paintComponent(graphics);
+            Graphics2D g = (Graphics2D) graphics.create();
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g.scale(getWidth() / (double) WORLD_WIDTH, getHeight() / (double) WORLD_HEIGHT);
 
-	private ImageIcon getScaledIcon(String path, int size, boolean isAnimatedGif) {
-		String key = path + "@" + size + (isAnimatedGif ? "#gif" : "#static");
-		ImageIcon cached = iconCache.get(key);
-		if (cached != null)
-			return cached;
+            drawFloor(g);
+            drawCameraCone(g);
+            drawServer(g, LEFT_SERVER);
+            drawServer(g, RIGHT_SERVER);
+            drawTerminal(g);
+            drawExtinguisher(g);
+            drawExit(g);
+            drawCamera(g);
+            drawPlayer(g);
+            g.dispose();
+        }
 
-		URL url = getClass().getResource(path);
-		if (url == null)
-			return null;
+        private void drawFloor(Graphics2D g) {
+            g.setColor(FLOOR);
+            g.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+            g.setColor(FLOOR_GRID);
+            g.setStroke(new BasicStroke(0.6f));
+            for (int x = 0; x <= WORLD_WIDTH; x += 31) {
+                g.drawLine(x, 0, x, WORLD_HEIGHT);
+            }
+            for (int y = 0; y <= WORLD_HEIGHT; y += 37) {
+                g.drawLine(0, y, WORLD_WIDTH, y);
+            }
+            g.setColor(OUTLINE);
+            g.setStroke(new BasicStroke(3f));
+            g.drawRect(3, 3, WORLD_WIDTH - 7, WORLD_HEIGHT - 7);
+        }
 
-		if (isAnimatedGif) {
-			ImageIcon raw = new ImageIcon(url);
-			Image scaled = raw.getImage().getScaledInstance(size, size, Image.SCALE_FAST);
-			ImageIcon result = new ImageIcon(scaled);
-			iconCache.put(key, result);
-			return result;
-		} else {
-			try {
-				BufferedImage src = ImageIO.read(url);
-				BufferedImage dst = new BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB);
-				Graphics2D g = dst.createGraphics();
-				g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-						RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-				g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-				g.drawImage(src, 0, 0, size, size, null);
-				g.dispose();
-				ImageIcon result = new ImageIcon(dst);
-				iconCache.put(key, result);
-				return result;
-			} catch (Exception e) {
-				e.printStackTrace();
-				ImageIcon fallback = new ImageIcon(url);
-				iconCache.put(key, fallback);
-				return fallback;
-			}
-		}
-	}
+        private void drawCameraCone(Graphics2D g) {
+            Polygon cone = new Polygon(
+                    new int[]{979, 865, 465},
+                    new int[]{572, 90, 438}, 3);
+            g.setColor(new Color(232, 169, 74, 28));
+            g.fillPolygon(cone);
+            g.setColor(new Color(232, 169, 74, 155));
+            g.setStroke(new BasicStroke(2f));
+            g.drawLine(979, 572, 865, 90);
+            g.drawLine(979, 572, 465, 438);
+        }
 
-	private void applyPreferredWorldSize() {
-		Dimension preferredDim = new Dimension(COLS * tileSize, ROWS * tileSize);
-		tilePnl.setPreferredSize(preferredDim);
-		tilePnl.setMinimumSize(preferredDim);
-		tilePnl.setMaximumSize(preferredDim);
-		tilePnl.revalidate();
-		tilePnl.repaint();
-	}
+        private void drawServer(Graphics2D g, Rectangle rect) {
+            g.setColor(new Color(7, 28, 28));
+            g.fillRoundRect(rect.x, rect.y, rect.width, rect.height, 18, 18);
+            g.setColor(OUTLINE);
+            g.setStroke(new BasicStroke(3f));
+            g.drawRoundRect(rect.x, rect.y, rect.width, rect.height, 18, 18);
 
-	private void startGameTimer() {
-		gameTimer = new Timer(1000, e -> {
-			elapsedSeconds++;
-			int minutes = elapsedSeconds / 60;
-			int seconds = elapsedSeconds % 60;
-			timeLbl.setText(String.format("Zeit: %02d:%02d", minutes, seconds));
-		});
-		gameTimer.start();
-	}
+            g.setColor(new Color(20, 42, 39));
+            g.fillRoundRect(rect.x + 12, rect.y + 9, rect.width - 24, rect.height - 18, 12, 12);
+            g.setColor(new Color(70, 117, 106));
+            for (int y = rect.y + 29; y < rect.y + rect.height - 20; y += 19) {
+                g.fillRoundRect(rect.x + 16, y, 19, 5, 3, 3);
+                g.fillRoundRect(rect.x + rect.width - 35, y, 19, 5, 3, 3);
+            }
+        }
 
-	private int calculateTileSize(int screenWidth, int screenHeight) {
-		int topHeight = (topPnl != null) ? topPnl.getPreferredSize().height : 0;
+        private void drawTerminal(Graphics2D g) {
+            g.setColor(new Color(8, 21, 19));
+            g.fillRoundRect(TERMINAL.x, TERMINAL.y, TERMINAL.width, TERMINAL.height, 14, 14);
+            g.setColor(CYAN);
+            g.setStroke(new BasicStroke(3f));
+            g.drawRoundRect(TERMINAL.x, TERMINAL.y, TERMINAL.width, TERMINAL.height, 14, 14);
+            g.setColor(new Color(62, 195, 103));
+            g.setStroke(new BasicStroke(2f));
+            g.drawLine(TERMINAL.x + 18, TERMINAL.y + 25, TERMINAL.x + 91, TERMINAL.y + 25);
+            g.drawLine(TERMINAL.x + 18, TERMINAL.y + 40, TERMINAL.x + 107, TERMINAL.y + 40);
+            g.drawLine(TERMINAL.x + 18, TERMINAL.y + 55, TERMINAL.x + 72, TERMINAL.y + 55);
+        }
 
-		int availableWidth = screenWidth;
-		int availableHeight = screenHeight - topHeight;
+        private void drawExtinguisher(Graphics2D g) {
+            g.setColor(new Color(183, 40, 42));
+            g.fillRoundRect(19, 530, 26, 55, 11, 11);
+            g.setColor(new Color(245, 101, 96));
+            g.setStroke(new BasicStroke(2.5f));
+            g.drawRoundRect(19, 530, 26, 55, 11, 11);
+            g.drawLine(32, 530, 32, 522);
+            g.drawLine(24, 522, 42, 522);
+            g.setColor(WHITE);
+            g.fillRoundRect(23, 550, 18, 13, 3, 3);
+            g.setColor(new Color(20, 26, 23));
+            g.drawArc(35, 525, 22, 34, 0, 140);
+        }
 
-		int tileByWidth = availableWidth / COLS;
-		int tileByHeight = availableHeight / ROWS;
+        private void drawExit(Graphics2D g) {
+            g.setColor(new Color(4, 17, 16));
+            g.fillRoundRect(435, 568, 130, 29, 10, 10);
+            g.setColor(new Color(92, 227, 141));
+            g.setStroke(new BasicStroke(3f));
+            g.drawRoundRect(435, 568, 130, 29, 10, 10);
+            g.drawLine(492, 580, 501, 587);
+            g.drawLine(501, 587, 510, 580);
+        }
 
-		int size = Math.min(tileByWidth, tileByHeight);
+        private void drawCamera(Graphics2D g) {
+            g.setColor(new Color(12, 21, 24));
+            g.fillOval(957, 551, 37, 37);
+            g.setColor(new Color(234, 181, 78));
+            g.setStroke(new BasicStroke(3f));
+            g.drawOval(957, 551, 37, 37);
+            g.setColor(new Color(224, 88, 67));
+            g.fillOval(970, 563, 11, 11);
+        }
 
-		return Math.max(16, size);
-	}
+        private void drawPlayer(Graphics2D g) {
+            int x = Math.round((playerCol + 0.5f) * WORLD_WIDTH / COLS);
+            int y = Math.round((playerRow + 0.5f) * WORLD_HEIGHT / ROWS);
 
+            g.setColor(new Color(0, 0, 0, 110));
+            g.fillOval(x - 19, y + 20, 38, 12);
+            g.setColor(WHITE);
+            g.setStroke(new BasicStroke(3.2f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g.drawOval(x - 9, y - 29, 18, 18);
+            g.drawLine(x, y - 10, x, y + 14);
+            g.drawLine(x, y - 4, x - 16, y + 7);
+            g.drawLine(x, y - 4, x + 16, y + 7);
+            g.drawLine(x, y + 14, x - 15, y + 30);
+            g.drawLine(x, y + 14, x + 15, y + 30);
+
+            g.setColor(CYAN);
+            g.setStroke(new BasicStroke(2.7f));
+            if (currentDirection == PlayerDirections.UP) {
+                g.drawLine(x, y - 35, x, y - 45);
+            } else if (currentDirection == PlayerDirections.DOWN) {
+                g.drawLine(x, y + 32, x, y + 42);
+            } else if (currentDirection == PlayerDirections.LEFT) {
+                g.drawLine(x - 19, y - 3, x - 29, y - 3);
+            } else {
+                g.drawLine(x + 19, y - 3, x + 29, y - 3);
+            }
+        }
+    }
 }
