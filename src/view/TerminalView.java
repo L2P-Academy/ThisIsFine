@@ -43,6 +43,9 @@ public class TerminalView extends JFrame {
         add(northLabel, BorderLayout.NORTH);
         add(southPanel, BorderLayout.SOUTH);
         add(middlePanel, BorderLayout.CENTER);
+        
+		setLocationRelativeTo(null);
+		setVisible(true);
     }
 
 	public static void beautifyButton(JButton button) {
