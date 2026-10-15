@@ -1,74 +1,38 @@
 package model;
 
-// author Whatchamaycall
+import java.util.List;
+import java.util.ArrayList;
+
+// author: Whatchamaycall
 
 public class ItemRepository {
 
-	// attributes
-	private ItemModel fireExtinguisher, keyboard, keyCard;
-	private ItemModel coffee, harrysCape, usbDrive;
+    // attributes
+    private static final List<ItemModel> ITEMS = new ArrayList<>();
 
-	// constructor
+    // create items
+    static {
+        ITEMS.add(new ItemModel(1, 0, 0, "Fire Extinguisher", false, true));
+        ITEMS.add(new ItemModel(2, 0, 0, "Keyboard", false, true));
+        ITEMS.add(new ItemModel(3, 0, 0, "Keycard", false, true));
+        ITEMS.add(new ItemModel(4, 0, 0, "Coffee", false, true));
+        ITEMS.add(new ItemModel(5, 0, 0, "Harry's Cape", false, true));
+        ITEMS.add(new ItemModel(6, 0, 0, "USB Drive", false, true));
+    }
 
-	public ItemRepository(ItemModel fireExtinguisher, ItemModel keyboard, ItemModel keyCard, ItemModel coffee,
-			ItemModel harrysCape, ItemModel usbDrive) {
-		super();
-		this.fireExtinguisher = fireExtinguisher;
-		this.keyboard = keyboard;
-		this.keyCard = keyCard;
-		this.coffee = coffee;
-		this.harrysCape = harrysCape;
-		this.usbDrive = usbDrive;
-	}
+    // return all items
+    public static List<ItemModel> getAllItems() {
+        return ITEMS;
+    }
 
-	// methods
-	// getter & setter
-	public ItemModel getFireExtinguisher() {
-		return fireExtinguisher;
-	}
+    // return item via ID 
+    public static ItemModel getItemById(int id) {
+        for (ItemModel item : ITEMS) {
+            if (item.getId() == id) {
+                return item;
+            }
+        }
 
-	public void setFireExtinguisher(ItemModel fireExtinguisher) {
-		this.fireExtinguisher = fireExtinguisher;
-	}
-
-	public ItemModel getKeyboard() {
-		return keyboard;
-	}
-
-	public void setKeyboard(ItemModel keyboard) {
-		this.keyboard = keyboard;
-	}
-
-	public ItemModel getKeyCard() {
-		return keyCard;
-	}
-
-	public void setKeyCard(ItemModel keyCard) {
-		this.keyCard = keyCard;
-	}
-
-	public ItemModel getCoffee() {
-		return coffee;
-	}
-
-	public void setCoffee(ItemModel coffee) {
-		this.coffee = coffee;
-	}
-
-	public ItemModel getHarrysCape() {
-		return harrysCape;
-	}
-
-	public void setHarrysCape(ItemModel harrysCape) {
-		this.harrysCape = harrysCape;
-	}
-
-	public ItemModel getUsbDrive() {
-		return usbDrive;
-	}
-
-	public void setUsbDrive(ItemModel usbDrive) {
-		this.usbDrive = usbDrive;
-	}
-
+        return null;
+    }
 }

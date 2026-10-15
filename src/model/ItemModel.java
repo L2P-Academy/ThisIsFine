@@ -5,18 +5,16 @@ package model;
 public class ItemModel {
 
 	// attributes
-	private int positionX, positionY, width, height;
+	private int id, positionX, positionY;
 	private String name;
 	private boolean collected, visible;
 
 	// constructor
-	public ItemModel(int positionX, int positionY, int width, int height, String name, boolean collected,
-			boolean visible) {
+	public ItemModel(int positionX, int positionY, int id, String name, boolean collected, boolean visible) {
 		super();
 		this.positionX = positionX;
 		this.positionY = positionY;
-		this.width = width;
-		this.height = height;
+		this.id = id;
 		this.name = name;
 		this.collected = collected;
 		this.visible = visible;
@@ -37,7 +35,7 @@ public class ItemModel {
 	}
 
 	public boolean isAvailable() {
-		return !this.collected;
+		return this.collected;
 	}
 
 	// getter & setter
@@ -55,22 +53,6 @@ public class ItemModel {
 
 	public void setPositionY(int positionY) {
 		this.positionY = positionY;
-	}
-
-	public int getWidth() {
-		return width;
-	}
-
-	public void setWidth(int width) {
-		this.width = width;
-	}
-
-	public int getHeight() {
-		return height;
-	}
-
-	public void setHeight(int height) {
-		this.height = height;
 	}
 
 	public String getName() {
@@ -95,6 +77,14 @@ public class ItemModel {
 
 	public void setVisible(boolean visible) {
 		this.visible = visible;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 }
