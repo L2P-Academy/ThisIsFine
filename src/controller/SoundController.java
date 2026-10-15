@@ -1,7 +1,8 @@
 package controller;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.BufferedInputStream;
+import java.io.InputStream;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -12,6 +13,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 //author:SenseiFarm
 
 public class SoundController {
+	private final String urlPrefix="/sfx/";//"Haeng halt n /sfx/ an, wie in der MenuView. Layer 8 Fehler" - Christph Bauch, 15.10.2026 
 	private final String alarmUrl="alarm.wav";
 	private final String attentionUrl="attention.wav";
 	private final String extinguishedUrl="extinguished.wav";
@@ -28,16 +30,14 @@ public class SoundController {
 	private final String timerUrl="timer.wav";
 	private final String typingUrl="typing.wav";
 	
-	
 	public Clip musicClip;
 	public Clip sfxClip;
 	public Clip buttonClip;
 	
 	public SoundController(){
 		musicClip=createClip(inGame_bgmUrl);
-		sfxClip=createClip(null);
+		//sfxClip=createClip(null);
 		buttonClip=createClip(mouseClickUrl);
-		
 	}
 	
 	public void playMusic(Clip clip) {
@@ -58,15 +58,21 @@ public class SoundController {
 	}
 	
 	public void close() {
-		musicClip.close();
-		sfxClip.close();
+		if(musicClip.isOpen()) {
+			musicClip.close();
+		}
+		//if(sfxClip.isOpen()) {
+		//	sfxClip.close();
+		//}
+		if(buttonClip.isOpen()) {
 		buttonClip.close();
+		}
 	}
 	
 	private Clip createClip(String fileUrl) {
 		try{
-			FileInputStream fileStream=(FileInputStream)SoundController.class.getResourceAsStream(fileUrl);//TODO Sound URL einfügen
-			AudioInputStream aStream=new AudioInputStream(fileStream, AudioSystem.getAudioFileFormat(fileStream).getFormat(),0);
+			InputStream fileStream=new BufferedInputStream(getClass().getResourceAsStream(urlPrefix+fileUrl));
+			AudioInputStream aStream=AudioSystem.getAudioInputStream(fileStream);
 			Clip c =AudioSystem.getClip();
 			c.open(aStream);
 			return c;
