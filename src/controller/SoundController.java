@@ -13,22 +13,29 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 //author:SenseiFarm
 
 public class SoundController {
-	private final String urlPrefix="/sfx/";//"Haeng halt n /sfx/ an, wie in der MenuView. Layer 8 Fehler" - Christph Bauch, 15.10.2026 
+	private final String urlPrefix="/sfx/";//"Haeng halt n /sfx/ an, wie in der MenuView. Layer 8 Fehler"
 	private final String urlEnd=".wav";
+	
 	private final String alarmUrl="alarm";
 	private final String attentionUrl="attention";
 	private final String extinguishedUrl="extinguished";
+	private final String fireUrl="fire";
 	private final String fireExtinguisherUrl="fireExtinguisher";
 	private final String footStepsUrl="footSteps";
 	private final String gameOverUrl="gameOver";
 	private final String inGame_bgmUrl="inGame_bgm";
+	private final String inGame_bgm_fastUrl="inGame_bgm_fast";
+	private final String inGame_bgm_transitionUrl="inGame_bgm_transition";
+	private final String itemCollectUrl="itemCollect";
 	private final String mouseClickUrl="mouseClick";
 	private final String qteFailUrl="qteFail";
 	private final String qteSuccees_Url="qteSucceed_";
 	private final String talking_Url="talking_";
 	private final String taskCompletedUrl="taskCompleted";
+	private final String terminalActiveUrl="terminalActive";
 	private final String terminalLockOutUrl="terminalLockOut";
 	private final String timerUrl="timer";
+	private final String titleMusicUrl="titleMusic";
 	private final String typingUrl="typing";
 	
 	public Clip titleClip;
@@ -40,7 +47,7 @@ public class SoundController {
 	public Clip buttonClip;
 	
 	public SoundController(){
-		titleClip=createClip(inGame_bgmUrl);
+		titleClip=createClip(titleMusicUrl);
 		bgmClip=createClip(inGame_bgmUrl);
 		//sfxClip=createClip(null);
 		failClip=createClip(qteFailUrl);
@@ -85,9 +92,15 @@ public class SoundController {
 		if(bgmClip.isOpen()) {
 			bgmClip.close();
 		}
+		if(failClip.isOpen()) {
+			failClip.close();
+		}
 		//if(sfxClip.isOpen()) {
 		//	sfxClip.close();
 		//}
+		if(titleClip.isOpen()) {
+			titleClip.close();
+		}
 		if(buttonClip.isOpen()) {
 		buttonClip.close();
 		}
