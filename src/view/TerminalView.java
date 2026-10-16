@@ -2,6 +2,7 @@ package view;
 
 import model.CryptoModel;
 import model.CryptoModel.TerminalLine;
+import controller.SoundController;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -22,6 +23,7 @@ public class TerminalView extends JFrame {
     private static final DefaultHighlighter.DefaultHighlightPainter HOVER_PAINTER =
         new DefaultHighlighter.DefaultHighlightPainter(new Color(30, 95, 40));
 
+    private final SoundController soundController;
     private final CryptoModel model;
     private final JLabel attemptsLabel;
     private final JLabel statusLabel;
@@ -31,11 +33,12 @@ public class TerminalView extends JFrame {
     private int highlightedStart = -1;
     private int highlightedEnd = -1;
 
-    public TerminalView() {
-        this(new CryptoModel());
+    public TerminalView(SoundController soundController) {
+        this(new CryptoModel(),soundController);
     }
 
-    public TerminalView(CryptoModel model) {
+    public TerminalView(CryptoModel model,SoundController soundController) {
+    	this.soundController=soundController;
         this.model = model;
 
         setTitle("ThisIsFine - Terminal");
@@ -104,6 +107,10 @@ public class TerminalView extends JFrame {
         updateAttempts();
         setLocationRelativeTo(null);
         setVisible(true);
+        
+        //Music
+        
+        
     }
 
     private static JLabel titleLabel(String text, int size) {
@@ -150,6 +157,14 @@ public class TerminalView extends JFrame {
                 area.setCursor(!model.isGameOver() && wordAt(area, lines, e.getPoint()) != null
                     ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
                     : Cursor.getDefaultCursor());
+                
+                //play typing sound if hovering over Word
+                if(!model.isGameOver() && wordAt(area, lines, e.getPoint()) != null && !soundController.typingClip.isActive()) {
+                	soundController.playSfx(soundController.typingClip);
+                }
+                if(soundController.typingClip.isRunning() && wordAt(area,lines, e.getPoint())==null) {
+                	soundController.stopSfx(soundController.typingClip);
+                }
             }
 
             @Override
@@ -174,6 +189,12 @@ public class TerminalView extends JFrame {
                 statusLabel.setForeground(model.isSolved()
                     ? MATRIX_GREEN : new Color(255, 185, 55));
                 updateAttempts();
+                soundController.typingClip.stop();
+                soundController.playButtonClip(soundController.buttonClip);
+                if(model.isGameOver()) {
+                	if(model.isSolved()) {soundController.playRandomSuccessClip();
+                	}else {soundController.playSfx(soundController.failClip);}
+                }
             }
         };
 
