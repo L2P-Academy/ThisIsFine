@@ -26,8 +26,7 @@ public class PauseView extends JFrame{
 	//Attribute
 	private JButton resumeBtn, restartBtn, saveBtn, exitBtn;
 	private JPanel buttonPanel, backgroundPanel;
-	private JLabel pauseLabel;
-	private String bgPath = "/img/ThisIsFine_bg.png";
+	private String bgPath = "/img/PauseView_bg.png";
 	
 	
 	//Constructor
@@ -43,6 +42,8 @@ public class PauseView extends JFrame{
 		JPanel centerWrapper = new JPanel(new java.awt.GridBagLayout());
 		centerWrapper.setOpaque(false);
 		centerWrapper.add(buttonPanel);
+		buttonPanel.setOpaque(false);
+		buttonPanel.setBorder(BorderFactory.createEmptyBorder(150, 0, 0, 0)); 
 		ImageIcon bgIcon = new ImageIcon(getClass().getResource(bgPath));
 		backgroundPanel = new BackgroundPanel(bgIcon.getImage());
 		backgroundPanel.setLayout(new BorderLayout());
@@ -57,10 +58,6 @@ public class PauseView extends JFrame{
 		exitBtn = new JButton("Beenden");
 		beautifyButton(exitBtn);
 		
-		pauseLabel = new JLabel("SPIEL PAUSIERT", SwingConstants.CENTER);
-		pauseLabel.setFont(new Font("Times New Roman", Font.BOLD, 90));
-		pauseLabel.setForeground(new Color(255, 148, 17));
-		pauseLabel.setBorder(BorderFactory.createEmptyBorder(220, 0, 0, 0));
 		
 		
 		//layout
@@ -71,8 +68,7 @@ public class PauseView extends JFrame{
 		buttonPanel.setOpaque(false);
 		
 		
-		
-		backgroundPanel.add(pauseLabel, BorderLayout.NORTH);
+	
 		backgroundPanel.add(centerWrapper, BorderLayout.CENTER);
 		
 		//actions
@@ -147,6 +143,6 @@ public class PauseView extends JFrame{
 					}
 				});
 			}
-
+	
 }
 

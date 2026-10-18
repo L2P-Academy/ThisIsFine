@@ -26,8 +26,7 @@ public class GameOverView extends JFrame{
 	//Attribute
 	private JButton restartBtn, mainMenuBtn;
 	private JPanel buttonPanel, backgroundPanel;
-	private JLabel gameOverLabel;
-	private String bgPath = "/img/ThisIsFine_bg.png";
+	private String bgPath = "/img/GameOverView_bg.png";
 	
 	
 	//Constructor
@@ -43,6 +42,8 @@ public class GameOverView extends JFrame{
 		JPanel centerWrapper = new JPanel(new java.awt.GridBagLayout());
 		centerWrapper.setOpaque(false);
 		centerWrapper.add(buttonPanel);
+		buttonPanel.setOpaque(false);
+		buttonPanel.setBorder(BorderFactory.createEmptyBorder(150, 0, 0, 0)); 
 		ImageIcon bgIcon = new ImageIcon(getClass().getResource(bgPath));
 		backgroundPanel = new BackgroundPanel(bgIcon.getImage());
 		backgroundPanel.setLayout(new BorderLayout());
@@ -52,20 +53,12 @@ public class GameOverView extends JFrame{
 		beautifyButton(restartBtn);
 		mainMenuBtn = new JButton("Hauptmenü");
 		beautifyButton(mainMenuBtn);
-		
-		gameOverLabel = new JLabel("GAME OVER", SwingConstants.CENTER);
-		gameOverLabel.setFont(new Font("Times New Roman", Font.BOLD, 90));
-		gameOverLabel.setForeground(new Color(255, 148, 17));
-		gameOverLabel.setBorder(BorderFactory.createEmptyBorder(220, 0, 0, 0));
-		
-		
+			
 		//layout
 		buttonPanel.add(restartBtn);
 		buttonPanel.add(mainMenuBtn);
 		buttonPanel.setOpaque(false);
 		
-		
-		backgroundPanel.add(gameOverLabel, BorderLayout.NORTH);
 		backgroundPanel.add(centerWrapper, BorderLayout.CENTER);
 		
 		//actions
@@ -123,4 +116,5 @@ public class GameOverView extends JFrame{
 				});
 			}
 	
+
 }
